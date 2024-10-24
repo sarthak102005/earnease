@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earnease Employee Portal</title>
+    <!-- Include Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('Earnease_20241005_130745_0000.png') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            color: white;
+            position: relative;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+
+        header {
+            background-color: transparent;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .container {
+            display: flex;
+            margin-top: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        nav {
+            width: 250px;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            color: white;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 2;
+        }
+
+        nav a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 10px 0;
+            margin: 10px 0;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        nav a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding-left: 15px;
+            transition: 0.3s;
+        }
+
+        .main-content {
+            flex: 1;
+            background-color: transparent;
+            padding: 20px;
+            margin-left: 270px;
+            z-index: 2;
+        }
+
+        .welcome-widget {
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            width: 300px;
+            position: absolute;
+            right: 50px;
+            top: 20px;
+            z-index: 2;
+        }
+
+        .welcome-widget h2 {
+            color: #ffffff;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .employee-info {
+            font-size: 18px;
+            color: #ffffff;
+            margin-top: 5px;
+        }
+
+        .wage-tracker {
+            text-align: left;
+            margin: 300px 0;
+            margin-left: 20px;
+        }
+
+        .wage-tracker h3 {
+            font-size: 24px;
+            color: #ffffff;
+        }
+
+        .footer {
+            text-align: center;
+            background-color: transparent;
+            color: white;
+            padding: 10px 0;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            z-index: 2;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 4;
+        }
+
+        .modal-content {
+            background-color: #333;
+            padding: 30px;
+            border-radius: 10px;
+            width: 600px;
+            position: relative;
+            text-align: center;
+        }
+
+        .modal h2, .modal p {
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 25px;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            margin: 20px auto;
+        }
+
+        .bar {
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            margin: 20px 0;
+            position: relative;
+            height: 30px;
+        }
+
+        .bar-fill {
+            height: 30px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 5px;
+            transition: width 0.3s;
+        }
+
+        .chatbot-icon {
+            width: 70px;
+            height: 70px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 50%;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 3;
+            overflow: hidden;
+        }
+
+        .chatbot-icon img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .chatbot-message {
+            position: fixed;
+            bottom: 110px;
+            right: 30px;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            display: none;
+            z-index: 3;
+        }
+
+        .chatbot-message::before {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            right: 10px;
+            border-width: 10px;
+            border-style: solid;
+            border-color: rgba(0, 0, 0, 0.9) transparent transparent transparent;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .calendar div {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .calendar div.leave-day {
+            background-color: rgba(255, 0, 0, 0.6);
+        }
+        .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+    z-index: 4;
+}
+
+.modal-content {
+    background-color: #333;
+    padding: 30px;
+    border-radius: 10px;
+    width: 600px;
+    position: relative;
+    text-align: center;
+}
+
+.modal h2, .modal p {
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 25px;
+    color: #fff;
+    cursor: pointer;
+}
+
+    </style>
+</head>
+<body>
+
+<div class="overlay"></div>
+
+<header>
+    <h1>Earnease Employee Portal</h1>
+</header>
+
+<div class="welcome-widget">
+    <h2>Welcome, Aarav Mehta</h2>
+    <p class="employee-info">Employee Code: EMP123456 | Available Wages: ₹25,000 | Next Payroll Date: 25th October 2024</p>
+</div>
+
+<div class="container">
+    <nav>
+        <a href="#" onclick="openModal('salary-modal')">Salary Breakdown</a>
+        <a href="#" onclick="openModal('incentives-modal')">Incentives & Rewards</a>
+        <a href="#" onclick="openModal('leave-modal')">Leave Tracker</a>
+        <a href="#" onclick="openModal('tax-modal')">Tax Calculator</a>
+        <a href="https://sarthak102005.github.io/employeewi.github.io/" target="_blank">Early Wage Withdrawal</a>
+        <a href="#" onclick="openModal('concern-modal')">Raise a Concern</a>
+
+    </nav>
+
+    <div class="main-content">
+        <div class="wage-tracker">
+            <h3>Your Wage Tracker</h3>
+            
+            <!-- Bar for total salary -->
+            <div class="bar">
+                <div class="bar-fill" style="width: 100%; background-color: #f0dede;">
+                    <span style="position: absolute; left: 10px; top: 5px; color: black;">Total Salary: ₹35,000</span>
+                </div>
+            </div>
+        
+            <!-- Bar for available salary -->
+            <div class="bar">
+                <div class="bar-fill" style="width: 71%; background-color: #f0dede;">
+                    <span style="position: absolute; left: 10px; top: 5px; color: black;">Available to Withdraw: ₹25,000</span>
+                </div>
+            </div>
+        
+            <!-- Bar for withdrawn salary -->
+            <div class="bar">
+                <div class="bar-fill" style="width: 29%; background-color: #f0dede;">
+                    <span style="position: absolute; left: 10px; top: 5px; color: black;">Withdrawn: ₹10,000</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="wageChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    <p>&copy; 2024 Earnease. All rights reserved.</p>
+</div>
+
+<!-- Salary Breakdown Modal -->
+<div id="salary-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('salary-modal')">&times;</span>
+        <h2>Salary Breakdown</h2>
+        <p>Your salary details are as follows:</p>
+        <ul>
+            <li>Gross Salary: ₹35,000</li>
+            <li>Deductions: ₹3,000</li>
+            <li>Net Salary: ₹30,000</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Tax Calculator Modal -->
+<div id="tax-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('tax-modal')">&times;</span>
+        <h2>Tax Calculator</h2>
+        <p>Based on your salary of ₹35,000, the following tax details are calculated:</p>
+        <ul>
+            <li><strong>Gross Salary:</strong> ₹35,000</li>
+            <li><strong>Exemptions:</strong></li>
+            <ul>
+                <li>Health Insurance: ₹2,000</li>
+                <li>Vehicle Loan: ₹3,000</li>
+            </ul>
+            <li><strong>Taxable Income:</strong> ₹30,000 (after ₹5,000 exemptions)</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Incentives & Rewards Modal -->
+<div id="incentives-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('incentives-modal')">&times;</span>
+        <h2>Incentives & Rewards</h2>
+        <p>Throughout the year, you have received the following incentives:</p>
+        <ul>
+            <li>Q1 Performance Bonus: ₹5,000</li>
+            <li>Referral Bonus: ₹3,000</li>
+            <li>Completion Bonus: ₹2,000</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Leave Tracker Modal -->
+<div id="leave-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('leave-modal')">&times;</span>
+        <h2>Leave Tracker - September 2024</h2>
+        <div class="calendar">
+            <div>1</div>
+            <div class="leave-day">2</div>
+            <div>3</div>
+            <div>4</div>
+            <div>5</div>
+            <div>6</div>
+            <div>7</div>
+            <div>8</div>
+            <div>9</div>
+            <div class="leave-day">10</div>
+            <div>11</div>
+            <div>12</div>
+            <div>13</div>
+            <div>14</div>
+            <div>15</div>
+            <div>16</div>
+            <div>17</div>
+            <div>18</div>
+            <div>19</div>
+            <div>20</div>
+            <div class="leave-day">21</div>
+            <div>22</div>
+            <div>23</div>
+            <div>24</div>
+            <div>25</div>
+            <div>26</div>
+            <div>27</div>
+            <div>28</div>
+            <div>29</div>
+            <div>30</div>
+        </div>
+    </div>
+</div>
+<!-- Raise a Concern Modal -->
+<div id="concern-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('concern-modal')">&times;</span>
+        <h2>Raise a Concern</h2>
+        
+        <label for="to">To:</label>
+        <select id="to" name="to">
+            <option value="earnease">Earnease</option>
+            <option value="employer">Employer</option>
+        </select>
+        
+        <br><br>
+        
+        <textarea id="concern-text" rows="4" cols="50" placeholder="Write your concern here..."></textarea>
+        
+        <br><br>
+        
+        <button onclick="submitConcern()">Submit</button>
+        
+        <p id="concern-message" style="color: lightgreen; display: none;">Your concern will be considered and an action will be taken.</p>
+    </div>
+</div>
+
+<!-- Chatbot Icon -->
+<div class="chatbot-icon" onclick="toggleChatbotMessage()">
+    <img src="chatbot.jpg" alt="Chatbot Icon">
+</div>
+
+<!-- Chatbot Message -->
+<div class="chatbot-message" id="chatbot-message">
+    Hi, I am Tankhwa, your very own financial assistant. How can I help you?
+</div>
+
+<script>
+    // Modal handling functions
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = 'flex';
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+    function submitConcern() {
+    // Get the selected option and the concern text
+    const selectedOption = document.getElementById('to').value;
+    const concernText = document.getElementById('concern-text').value;
+    
+    // Check if the concern text is filled
+    if (concernText.trim() !== "") {
+        document.getElementById('concern-message').style.display = 'block';
+        document.getElementById('concern-text').value = ''; // Clear the text area after submission
+    } else {
+        alert("Please write your concern before submitting.");
+    }
+}
+
+    // Toggle Chatbot Message Visibility
+    function toggleChatbotMessage() {
+        var chatbotMessage = document.getElementById('chatbot-message');
+        chatbotMessage.style.display = chatbotMessage.style.display === 'block' ? 'none' : 'block';
+    }
+</script>
+
+</body>
+</html>
